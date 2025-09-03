@@ -14,7 +14,7 @@ local Themes = {
 	JWare2 = { MainColor = Color3.fromRGB(135, 0, 2), OutlineColor = Color3.fromRGB(0, 0, 0), BackgroundColor = Color3.fromRGB(27, 27, 27), BackgroundColor2 = Color3.fromRGB(16, 16, 16) }
 }
 
-local Theme = Themes.JWare
+local Theme = Themes.JWare2
 
 local Library = {}
 
@@ -128,6 +128,40 @@ function CreateWindow(Options)
 		Window["c"].PaddingRight = UDim.new(0, 1);
 		Window["c"].PaddingLeft = UDim.new(0, 1);
 
+		-- Keybinds Window (always created but hidden)
+		local KeybindFrame = Instance.new("Frame", Window["1"])
+		KeybindFrame.Name = "KeybindFrame"
+		KeybindFrame.Size = UDim2.new(0, 150, 0, 120)
+		KeybindFrame.Position = UDim2.new(0, 5, 0, 500)
+		KeybindFrame.BackgroundColor3 = Theme.BackgroundColor
+		KeybindFrame.BorderSizePixel = 0
+		KeybindFrame.Visible = false
+
+		local Stroke = Instance.new("UIStroke", KeybindFrame)
+		Stroke.Color = Theme.MainColor
+		Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		Stroke.Thickness = 2
+
+		local Content = Instance.new("Frame", KeybindFrame)
+		Content.Name = "ContentFrame"
+		Content.Size = UDim2.new(1, -10, 1, -10)
+		Content.Position = UDim2.new(0, 5, 0, 5)
+		Content.BackgroundColor3 = Theme.BackgroundColor2
+		Content.BorderSizePixel = 0
+
+		local Layout = Instance.new("UIListLayout", Content)
+		Layout.SortOrder = Enum.SortOrder.LayoutOrder
+		Layout.Padding = UDim.new(0, 2)
+
+		local Title = Instance.new("TextLabel", Content)
+		Title.Text = "Keybinds"
+		Title.Size = UDim2.new(1, 0, 0, 20)
+		Title.BackgroundTransparency = 1
+		Title.TextColor3 = Color3.fromRGB(200,200,200)
+		Title.Font = Enum.Font.Gotham
+		Title.TextSize = 14
+
+
 
 		-- Draggable TitleFrame (smooth)
 		do
@@ -233,7 +267,7 @@ function CreateWindow(Options)
 			Tab.ElementsContainer.Size = UDim2.new(0, 680, 0, 460);
 			Tab.ElementsContainer.Position = UDim2.new(0, 5, 0, 50);
 			Tab.ElementsContainer.BorderColor3 = Color3.fromRGB(0, 0, 0);
-			Tab.ElementsContainer.Name = Options.Title .. "Container";
+			Tab.ElementsContainer.Name = Options.Title .. "_Container";
 			Tab.ElementsContainer.Visible = false;
 
 			local stroke = Instance.new("UIStroke", Tab.ElementsContainer);
@@ -703,7 +737,7 @@ function CreateWindow(Options)
 						updateValue(input.Position.X)
 					end
 				end)
-				
+
 				-- Hover effect for Title + Value only
 				SliderFrame.MouseEnter:Connect(function()
 					TweenService:Create(TitleLabel, TweenInfo, { TextColor3 = Color3.fromRGB(255, 255, 255) }):Play()
@@ -1020,7 +1054,7 @@ function CreateWindow(Options)
 						UIFrame.Visible=false
 					end
 				end)
-				
+
 				-- Hover effect for Title only
 				ColorPickerFrame.MouseEnter:Connect(function()
 					TweenService:Create(TitleLabel, TweenInfo, { TextColor3 = Color3.fromRGB(255, 255, 255) }):Play()
@@ -1091,7 +1125,7 @@ function CreateWindow(Options)
 				}
 
 			end
-			
+
 			function Section:AddKeyPicker(config)
 				config = config or {}
 				config.Title = config.Title or "Keybind"
@@ -1239,7 +1273,5 @@ function CreateWindow(Options)
 		return Tab
 	end
 
-
 	return Window
 end
-return Library
