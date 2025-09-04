@@ -1,3 +1,9 @@
+Themes = {
+	JWare  = { MainColor = Color3.fromRGB(70, 7, 100), OutlineColor = Color3.fromRGB(0, 0, 0), BackgroundColor = Color3.fromRGB(27, 27, 27), BackgroundColor2 = Color3.fromRGB(16, 16, 16) },
+	JWare2 = { MainColor = Color3.fromRGB(135, 0, 2), OutlineColor = Color3.fromRGB(0, 0, 0), BackgroundColor = Color3.fromRGB(27, 27, 27), BackgroundColor2 = Color3.fromRGB(16, 16, 16) }
+}
+
+
 local function InitJWareUI()
 	-- Services
 	local Players = game:GetService("Players")
@@ -10,15 +16,13 @@ local function InitJWareUI()
 	local ViewPort = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1280, 720)
 	local DefaultTweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
 
-	local Themes = {
-		JWare  = { MainColor = Color3.fromRGB(70, 7, 100), OutlineColor = Color3.fromRGB(0, 0, 0), BackgroundColor = Color3.fromRGB(27, 27, 27), BackgroundColor2 = Color3.fromRGB(16, 16, 16) },
-		JWare2 = { MainColor = Color3.fromRGB(135, 0, 2), OutlineColor = Color3.fromRGB(0, 0, 0), BackgroundColor = Color3.fromRGB(27, 27, 27), BackgroundColor2 = Color3.fromRGB(16, 16, 16) }
-	}
-
+	--Theme
 	local Theme = Themes.JWare2
+	
+	
 
 	local Library = {}
-
+	
 	function Library:Validate(Defaults, Options)
 		for i,v in pairs(Defaults) do
 			if Options[i] == nil then
@@ -74,6 +78,13 @@ local function InitJWareUI()
 			Window["1"].ResetOnSpawn = false
 			Window["1"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 			Window["1"].Parent = (RunService:IsStudio() and Players.LocalPlayer and Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")) or parentGui
+			
+			Window["1z"] = Instance.new("ScreenGui")
+			Window["1z"].Name = "JWare UI Watermarks"
+			Window["1z"].IgnoreGuiInset = true
+			Window["1z"].ResetOnSpawn = false
+			Window["1z"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+			Window["1z"].Parent = (RunService:IsStudio() and Players.LocalPlayer and Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")) or parentGui
 			
 			local _uiVisible = true
 			
@@ -174,20 +185,250 @@ local function InitJWareUI()
 			Window["c"].PaddingRight = UDim.new(0, 1)
 			Window["c"].PaddingLeft = UDim.new(0, 1)
 			Window["c"].Parent = Window["b"]
+			
+			-------------------------------------------------------------
+			-- StarterGui.JWare UI.KeybindFrame
+			Window["4f"] = Instance.new("Frame", Window["1z"])
+			Window["4f"].BorderSizePixel = 0
+			Window["4f"].BackgroundColor3 = Theme.BackgroundColor
+			Window["4f"].Size = UDim2.new(0, 150, 0, 100)
+			Window["4f"].Position = UDim2.new(0, 5, 0, 500)
+			Window["4f"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+			Window["4f"].Name = "KeybindFrame"
+			Window["4f"].Visible = false
 
-			-- Draggable TitleFrame (smooth)
-			do
+			-- track visibility state
+			local _KeybindVisible = false  
+
+			function Window:KeybindToggle(state)
+				if state == nil then
+					_KeybindVisible = not _KeybindVisible
+				else
+					_KeybindVisible = state and true or false
+				end
+
+				self["4f"].Visible = _KeybindVisible
+			end
+
+
+			-- StarterGui.JWare UI.KebindFrame.UIStroke
+			Window["50"] = Instance.new("UIStroke", Window["4f"]);
+			Window["50"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+			Window["50"].Thickness = 2;
+			Window["50"].Color = Theme.MainColor;
+
+
+			-- StarterGui.JWare UI.KebindFrame.ContentFrame
+			Window["51"] = Instance.new("Frame", Window["4f"]);
+			Window["51"].BorderSizePixel = 0;
+			Window["51"].BackgroundColor3 = Theme.BackgroundColor2
+			Window["51"].Size = UDim2.new(0, 140, 0, 90);
+			Window["51"].Position = UDim2.new(0, 5, 0, 5);
+			Window["51"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+			Window["51"].Name = "ContentFrame";
+			
+			-- StarterGui.JWare UI.KebindFrame.ContentFrame.UIListLayout
+			Window["59"] = Instance.new("UIListLayout", Window["51"]);
+			Window["59"].HorizontalFlex = Enum.UIFlexAlignment.SpaceAround;
+			Window["59"].SortOrder = Enum.SortOrder.LayoutOrder;
+
+
+			-- StarterGui.JWare UI.KebindFrame.ContentFrame.UIStroke
+			Window["52"] = Instance.new("UIStroke", Window["51"]);
+			Window["52"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+			Window["52"].Color = Theme.OutlineColor
+			
+
+			-- StarterGui.JWare UI.KebindFrame.ContentFrame.TitleLabel
+			Window["53"] = Instance.new("Frame", Window["51"]);
+			Window["53"].BorderSizePixel = 0;
+			Window["53"].BackgroundColor3 = Color3.fromRGB(26, 26, 26);
+			Window["53"].Size = UDim2.new(0, 130, 0, 15);
+			Window["53"].Position = UDim2.new(0, 5, 0, 0);
+			Window["53"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+			Window["53"].Name = "TitleLabel";
+			Window["53"].BackgroundTransparency = 1;
+
+
+			-- StarterGui.JWare UI.KebindFrame.ContentFrame.TitleLabel.Title
+			Window["54"] = Instance.new("TextLabel", Window["53"]);
+			Window["54"].BorderSizePixel = 0;
+			Window["54"].TextSize = 12;
+			Window["54"].BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+			Window["54"].FontFace = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal);
+			Window["54"].TextColor3 = Color3.fromRGB(255, 255, 255);
+			Window["54"].BackgroundTransparency = 1;
+			Window["54"].Size = UDim2.new(1, 0, 1, 0);
+			Window["54"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+			Window["54"].Text = "Keybinds";
+			Window["54"].Name = "Title";
+
+
+			-- StarterGui.JWare UI.KebindFrame.ContentFrame.UIPadding
+			Window["55"] = Instance.new("UIPadding", Window["51"]);
+			Window["55"].PaddingBottom = UDim.new(0, 5);
+
+			-- ensure table to track labels
+			Window.KeybindLabels = Window.KeybindLabels or {}
+
+			function Window:AddKeybind(Title, Key)
+				
+				-- if Key is "None", remove label if it exists
+				if Key == "None" then
+					if self.KeybindLabels[Title] then
+						self.KeybindLabels[Title].Frame:Destroy()
+						self.KeybindLabels[Title] = nil
+					end
+					return
+				end
+
+				-- if label exists, update key only
+				if self.KeybindLabels[Title] then
+					self.KeybindLabels[Title].Key.Text = Key
+					return
+				end
+
+				-- StarterGui.JWare UI.KebindFrame.ContentFrame.Label
+				Window["56"] = Instance.new("Frame", Window["51"]);
+				Window["56"].BorderSizePixel = 0;
+				Window["56"].BackgroundColor3 = Color3.fromRGB(26, 26, 26);
+				Window["56"].Size = UDim2.new(0, 130, 0, 15);
+				Window["56"].Position = UDim2.new(0, 5, 0, 0);
+				Window["56"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Window["56"].Name = "Label";
+				Window["56"].BackgroundTransparency = 1;
+
+				-- StarterGui.JWare UI.KebindFrame.ContentFrame.Label.Title
+				Window["57"] = Instance.new("TextLabel", Window["56"]);
+				Window["57"].BorderSizePixel = 0;
+				Window["57"].TextSize = 12;
+				Window["57"].TextXAlignment = Enum.TextXAlignment.Left;
+				Window["57"].BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				Window["57"].FontFace = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal);
+				Window["57"].TextColor3 = Color3.fromRGB(255, 255, 255);
+				Window["57"].BackgroundTransparency = 1;
+				Window["57"].Size = UDim2.new(1, 0, 1, 0);
+				Window["57"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Window["57"].Text = Title;
+				Window["57"].Name = "Title";
+
+				-- StarterGui.JWare UI.KebindFrame.ContentFrame.Label.Key
+				Window["58"] = Instance.new("TextLabel", Window["56"]);
+				Window["58"].BorderSizePixel = 0;
+				Window["58"].TextSize = 12;
+				Window["58"].TextXAlignment = Enum.TextXAlignment.Right;
+				Window["58"].BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				Window["58"].FontFace = Font.new([[rbxasset://fonts/families/GothamSSm.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal);
+				Window["58"].TextColor3 = Color3.fromRGB(255, 255, 255);
+				Window["58"].BackgroundTransparency = 1;
+				Window["58"].Size = UDim2.new(1, 0, 1, 0);
+				Window["58"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Window["58"].Text = Key;
+				Window["58"].Name = "Key";
+				
+				-- store references for future updates
+				self.KeybindLabels[Title] = {
+					Frame = Window["56"],
+					Title = Window["57"],
+					Key = Window["58"]
+				}
+			end
+			-------------------------------------
+			
+			--Watermark
+			-------------------------------------------------------------
+			-- StarterGui.JWare UI.WatermarkFrame
+			Window["5a"] = Instance.new("Frame", Window["1z"]);
+			Window["5a"].BorderSizePixel = 0;
+			Window["5a"].BackgroundColor3 = Theme.BackgroundColor
+			Window["5a"].Size = UDim2.new(0, 400, 0, 30);
+			Window["5a"].Position = UDim2.new(0, 5, 0, 50);
+			Window["5a"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+			Window["5a"].Name = "WatermarkFrame";
+			Window["5a"].Visible = false
+
+			-- StarterGui.JWare UI.WatermarkFrame.UIStroke
+			Window["5b"] = Instance.new("UIStroke", Window["5a"]);
+			Window["5b"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+			Window["5b"].Thickness = 2;
+			Window["5b"].Color = Theme.MainColor
+
+			-- StarterGui.JWare UI.WatermarkFrame.ContentFrame
+			Window["5c"] = Instance.new("Frame", Window["5a"]);
+			Window["5c"].BorderSizePixel = 0;
+			Window["5c"].BackgroundColor3 = Theme.BackgroundColor2
+			Window["5c"].Size = UDim2.new(0, 390, 0, 20);
+			Window["5c"].Position = UDim2.new(0, 5, 0, 5);
+			Window["5c"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+			Window["5c"].Name = "ContentFrame";
+
+			-- StarterGui.JWare UI.WatermarkFrame.ContentFrame.UIStroke
+			Window["5d"] = Instance.new("UIStroke", Window["5c"]);
+			Window["5d"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+			Window["5d"].Color = Theme.OutlineColor
+
+			function Window:AddWatermark(Title, Alignment)
+				-- StarterGui.JWare UI.WatermarkFrame.ContentFrame.TitleLabel
+				Window["5e"] = Instance.new("Frame", Window["5c"]);
+				Window["5e"].BorderSizePixel = 0;
+				Window["5e"].BackgroundColor3 = Color3.fromRGB(26, 26, 26);
+				Window["5e"].Size = UDim2.new(0, 380, 1, 0);
+				Window["5e"].Position = UDim2.new(0, 5, 0, 0);
+				Window["5e"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Window["5e"].Name = "TitleLabel";
+				Window["5e"].BackgroundTransparency = 1;
+
+				-- StarterGui.JWare UI.WatermarkFrame.ContentFrame.TitleLabel.Title
+				Window["5f"] = Instance.new("TextLabel", Window["5e"]);
+				Window["5f"].BorderSizePixel = 0;
+				Window["5f"].TextSize = 13;
+				Window["5f"].BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+				Window["5f"].FontFace = Font.new([[rbxasset://fonts/families/Ubuntu.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal);
+				Window["5f"].TextColor3 = Color3.fromRGB(255, 255, 255);
+				Window["5f"].BackgroundTransparency = 1;
+				Window["5f"].Size = UDim2.new(1, 0, 1, 0);
+				Window["5f"].BorderColor3 = Color3.fromRGB(0, 0, 0);
+				Window["5f"].TextXAlignment = normalizeTextAlignment(Alignment)
+				Window["5f"].Text = Title;
+				Window["5f"].Name = "Title";
+			end
+			
+			local _WatermarkVisible = false  
+
+			function Window:WatermarkToggle(state)
+				if state == nil then
+					_WatermarkVisible = not _WatermarkVisible
+				else
+					_WatermarkVisible = state and true or false
+				end
+
+				self["5a"].Visible = _WatermarkVisible
+			end
+			-------------------------------------------------------------
+
+			-- Main window dragging
+			local speed = 0.2
+
+			local dragFrames = {
+				{ Drag = Window["4"], Target = Window["2"] },   -- drag Window["4"] moves Window["2"]
+				{ Drag = Window["4f"], Target = Window["4f"] }, -- drag Window["4f"] moves itself
+				{ Drag = Window["5a"], Target = Window["5a"] }  -- drag Window["5a"] moves itself
+			}
+
+			for _, info in ipairs(dragFrames) do
+				local dragInputFrame = info.Drag
+				local targetFrame = info.Target
+
 				local dragging = false
 				local dragStartPos = Vector2.zero
-				local frameStartPos = Window["2"].Position
-				local targetPos = Window["2"].Position
-				local speed = 0.2
+				local frameStartPos = targetFrame.Position
+				local targetPos = targetFrame.Position
 
-				Window["3"].InputBegan:Connect(function(input)
+				dragInputFrame.InputBegan:Connect(function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 then
 						dragging = true
 						dragStartPos = input.Position
-						frameStartPos = Window["2"].Position
+						frameStartPos = targetFrame.Position
 						targetPos = frameStartPos
 						input.Changed:Connect(function()
 							if input.UserInputState == Enum.UserInputState.End then
@@ -197,7 +438,7 @@ local function InitJWareUI()
 					end
 				end)
 
-				Window["3"].InputChanged:Connect(function(input)
+				dragInputFrame.InputChanged:Connect(function(input)
 					if input.UserInputType == Enum.UserInputType.MouseMovement then
 						local moveConn
 						moveConn = UserInputService.InputChanged:Connect(function(moveInput)
@@ -215,19 +456,16 @@ local function InitJWareUI()
 						UserInputService.InputEnded:Connect(function(endInput)
 							if endInput.UserInputType == Enum.UserInputType.MouseButton1 then
 								dragging = false
-								if moveConn then
-									moveConn:Disconnect()
-								end
+								if moveConn then moveConn:Disconnect() end
 							end
 						end)
 					end
 				end)
 
 				RunService.RenderStepped:Connect(function()
-					Window["2"].Position = Window["2"].Position:Lerp(targetPos, speed)
+					targetFrame.Position = targetFrame.Position:Lerp(targetPos, speed)
 				end)
 			end
-
 		end
 
 		-- Tab Creation
@@ -542,6 +780,7 @@ local function InitJWareUI()
 					config.Mode = config.Mode or "Toggle"
 					config.Sync = config.Sync or false
 					config.KeyCallback = config.KeyCallback or function(action, info) end
+					
 
 					local ToggleFrame = Instance.new("Frame")
 					ToggleFrame.Name = config.Title
@@ -666,6 +905,7 @@ local function InitJWareUI()
 											KeyLabel.Text = keyName
 											if keyName ~= currentKey then
 												currentKey = keyName
+												Window:AddKeybind(config.Title, keyName)
 												config.KeyCallback("Changed", { Key = keyName, Mode = config.Mode })
 											end
 											conn:Disconnect()
@@ -1312,6 +1552,7 @@ local function InitJWareUI()
 
 										if keyName ~= currentKey then
 											currentKey = keyName
+											Window:AddKeybind(config.Title, keyName)
 											config.Callback("Changed", { Key = keyName, Mode = config.Mode })
 										end
 
@@ -1389,17 +1630,17 @@ local function InitJWareUI()
 
 		return Window
 	end
-
+	
 	return CreateWindow
 end
 
 
--- Single-instance pattern for loadstring users:
+--return InitJWareUI() --remove if using executors
+
 if getgenv then
 	getgenv().JWareUI = getgenv().JWareUI or InitJWareUI()
 	return getgenv().JWareUI
 else
-	-- Environments without getgenv (e.g., Studio without exploit env)
 	_G.JWareUI = _G.JWareUI or InitJWareUI()
 	return _G.JWareUI
 end
