@@ -1,10 +1,3 @@
---!strict
--- JWare UI Library (Loadstring-ready)
--- Repo usage:
--- local JWareUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/YourUser/YourRepo/main/UI.lua"))()
--- local CreateWindow = JWareUI
--- local Window = CreateWindow({ Title = "My UI", TextAlignment = "Center" })
-
 local function InitJWareUI()
 	-- Services
 	local Players = game:GetService("Players")
@@ -22,7 +15,7 @@ local function InitJWareUI()
 		JWare2 = { MainColor = Color3.fromRGB(135, 0, 2), OutlineColor = Color3.fromRGB(0, 0, 0), BackgroundColor = Color3.fromRGB(27, 27, 27), BackgroundColor2 = Color3.fromRGB(16, 16, 16) }
 	}
 
-	local Theme = Themes.JWare
+	local Theme = Themes.JWare2
 
 	local Library = {}
 
@@ -81,6 +74,18 @@ local function InitJWareUI()
 			Window["1"].ResetOnSpawn = false
 			Window["1"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 			Window["1"].Parent = (RunService:IsStudio() and Players.LocalPlayer and Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")) or parentGui
+			
+			local _uiVisible = true
+			
+			function Window:UIToggle(state)
+				if state == nil then
+					_uiVisible = not _uiVisible
+				else
+					_uiVisible = state and true or false
+				end
+
+				self["1"].Enabled = _uiVisible
+			end
 
 			Window["2"] = Instance.new("Frame")
 			Window["2"].BorderSizePixel = 0
@@ -91,7 +96,7 @@ local function InitJWareUI()
 			Window["2"].BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Window["2"].Name = "MainFrame"
 			Window["2"].Parent = Window["1"]
-
+			
 			Window["6"] = Instance.new("UIStroke")
 			Window["6"].ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 			Window["6"].Thickness = 2
@@ -352,6 +357,7 @@ local function InitJWareUI()
 
 				Tab.SectionCount = Tab.SectionCount or {Left=0, Center=0, Right=0}
 
+				-- Pick the correct column (Left, Center, Right)
 				local posX = 5
 				if config.Type == "Center" then
 					posX = 231
@@ -359,21 +365,41 @@ local function InitJWareUI()
 					posX = 457
 				end
 
-				local posY = 5
-				for _, existingSection in ipairs(Tab.ElementsContainer:GetChildren()) do
-					if existingSection:IsA("Frame") and existingSection.Position.X.Offset == posX then
-						posY = posY + existingSection.Size.Y.Offset + 30
-					end
+				-- Create the column container if it doesn’t exist yet
+				local Column
+				if config.Type == "Left" then
+					Column = Tab.LeftColumn or Instance.new("Frame")
+					Tab.LeftColumn = Column
+				elseif config.Type == "Center" then
+					Column = Tab.CenterColumn or Instance.new("Frame")
+					Tab.CenterColumn = Column
+				elseif config.Type == "Right" then
+					Column = Tab.RightColumn or Instance.new("Frame")
+					Tab.RightColumn = Column
 				end
 
+				if not Column.Parent then
+					Column.Name = config.Type .. "Column"
+					Column.Size = UDim2.new(0, 218, 1, -10) -- full height for stacking
+					Column.Position = UDim2.new(0, posX, 0, 5)
+					Column.BackgroundTransparency = 1
+					Column.Parent = Tab.ElementsContainer
+
+					local layout = Instance.new("UIListLayout")
+					layout.SortOrder = Enum.SortOrder.LayoutOrder
+					layout.Padding = UDim.new(0, 7) -- spacing between sections
+					layout.Parent = Column
+				end
+
+				-- Create Section inside the chosen column
 				local SectionFrame = Instance.new("Frame")
 				SectionFrame.Name = config.Title or (config.Type .. "Section")
-				SectionFrame.Parent = Tab.ElementsContainer
 				SectionFrame.BackgroundColor3 = Theme.BackgroundColor2
 				SectionFrame.BorderSizePixel = 0
 				SectionFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				SectionFrame.Position = UDim2.new(0, posX, 0, posY)
-				SectionFrame.Size = UDim2.new(0, 218, 0, 450)
+				SectionFrame.Size = UDim2.new(0, 218, 0, 100) -- will auto-resize later
+				SectionFrame.Parent = Column
+
 
 				local Stroke = Instance.new("UIStroke", SectionFrame)
 				Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -511,11 +537,15 @@ local function InitJWareUI()
 					config.Title = config.Title or "Toggle"
 					config.Default = config.Default or false
 					config.Callback = config.Callback or function(v) end
+					config.KeybindEnabled = config.KeybindEnabled or false
+					config.KeyBind = config.KeyBind or "None"
+					config.Mode = config.Mode or "Toggle"
+					config.Sync = config.Sync or false
+					config.KeyCallback = config.KeyCallback or function(action, info) end
 
 					local ToggleFrame = Instance.new("Frame")
 					ToggleFrame.Name = config.Title
 					ToggleFrame.Parent = self.ElementsHolder
-					ToggleFrame.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
 					ToggleFrame.BackgroundTransparency = 1
 					ToggleFrame.BorderSizePixel = 0
 					ToggleFrame.Size = UDim2.new(0, 208, 0, 20)
@@ -527,7 +557,7 @@ local function InitJWareUI()
 					TitleLabel.TextSize = 14
 					TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 					TitleLabel.BackgroundTransparency = 1
-					TitleLabel.Size = UDim2.new(0, 185, 1, 0)
+					TitleLabel.Size = UDim2.new(0, 150, 1, 0)
 					TitleLabel.Position = UDim2.new(0, 23, 0, 0)
 					TitleLabel.Font = Enum.Font.Gotham
 					TitleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -539,10 +569,8 @@ local function InitJWareUI()
 					ToggleCheck.Position = UDim2.new(0, 0, 0, 3)
 					ToggleCheck.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
 					ToggleCheck.BorderSizePixel = 0
-
 					local UICorner = Instance.new("UICorner", ToggleCheck)
 					UICorner.CornerRadius = UDim.new(0, 2)
-
 					local UIStroke = Instance.new("UIStroke", ToggleCheck)
 					UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					UIStroke.Color = Theme.OutlineColor
@@ -553,51 +581,165 @@ local function InitJWareUI()
 					local function updateCheck(animated)
 						local targetColor = toggled and Theme.MainColor or Color3.fromRGB(26, 26, 26)
 						if animated then
-							TweenService:Create(ToggleCheck, DefaultTweenInfo, {
-								BackgroundColor3 = targetColor
-							}):Play()
+							TweenService:Create(ToggleCheck, DefaultTweenInfo, { BackgroundColor3 = targetColor }):Play()
 						else
 							ToggleCheck.BackgroundColor3 = targetColor
 						end
 					end
 					updateCheck(false)
 
+					local KeyLabel
+					local currentKey = config.KeyBind
+					local keyState = toggled -- for Toggle mode of KeyPicker
+
+					if config.KeybindEnabled then
+						KeyLabel = Instance.new("TextLabel")
+						KeyLabel.Size = UDim2.new(0, 30, 0, 15)
+						KeyLabel.Position = UDim2.new(0, 177, 0, 0)
+						KeyLabel.BackgroundTransparency = 1
+						KeyLabel.Font = Enum.Font.GothamBold
+						KeyLabel.TextSize = 12
+						KeyLabel.TextColor3 = toggled and Theme.MainColor or Color3.fromRGB(150, 150, 150)
+						KeyLabel.Text = currentKey
+						KeyLabel.TextXAlignment = Enum.TextXAlignment.Center
+						KeyLabel.Parent = ToggleFrame
+					end
+
+					local function updateKeyLabelColor(state)
+						if KeyLabel then
+							TweenService:Create(KeyLabel, DefaultTweenInfo, {
+								TextColor3 = state and Theme.MainColor or Color3.fromRGB(150, 150, 150)
+							}):Play()
+						end
+					end
+
 					local function toggle()
 						toggled = not toggled
 						updateCheck(true)
 						config.Callback(toggled)
+						if config.Sync then
+							keyState = toggled
+							updateKeyLabelColor(toggled)
+							config.KeyCallback("Sync", { Key = currentKey, Mode = config.Mode, State = toggled })
+						end
 					end
 
+					-- Toggle click
 					TitleLabel.MouseEnter:Connect(function()
-						TweenService:Create(TitleLabel, DefaultTweenInfo, {
-							TextColor3 = Color3.fromRGB(255, 255, 255)
-						}):Play()
+						TweenService:Create(TitleLabel, DefaultTweenInfo, { TextColor3 = Color3.fromRGB(255, 255, 255) }):Play()
 					end)
-
 					TitleLabel.MouseLeave:Connect(function()
-						TweenService:Create(TitleLabel, DefaultTweenInfo, {
-							TextColor3 = Color3.fromRGB(200, 200, 200)
-						}):Play()
+						TweenService:Create(TitleLabel, DefaultTweenInfo, { TextColor3 = Color3.fromRGB(200, 200, 200) }):Play()
 					end)
-
 					TitleLabel.InputBegan:Connect(function(input)
-						if input.UserInputType == Enum.UserInputType.MouseButton1 then
-							toggle()
-						end
+						if input.UserInputType == Enum.UserInputType.MouseButton1 then toggle() end
+					end)
+					ToggleCheck.InputBegan:Connect(function(input)
+						if input.UserInputType == Enum.UserInputType.MouseButton1 then toggle() end
 					end)
 
-					ToggleCheck.InputBegan:Connect(function(input)
-						if input.UserInputType == Enum.UserInputType.MouseButton1 then
-							toggle()
-						end
-					end)
+					if config.KeybindEnabled then
+						local hovered = false
+						local listening = false
+
+						KeyLabel.MouseEnter:Connect(function() hovered = true end)
+						KeyLabel.MouseLeave:Connect(function() hovered = false end)
+
+						UserInputService.InputBegan:Connect(function(input, gp)
+							if gp then return end
+
+							if hovered and input.UserInputType == Enum.UserInputType.MouseButton1 and not listening then
+								listening = true
+								KeyLabel.Text = "..."
+								task.defer(function()
+									local conn
+									conn = UserInputService.InputBegan:Connect(function(in2, gp2)
+										if gp2 then return end
+										local keyName
+										if in2.UserInputType == Enum.UserInputType.Keyboard then
+											keyName = in2.KeyCode.Name
+										elseif in2.UserInputType.Name:match("MouseButton") then
+											keyName = "MB"..tostring(in2.UserInputType.Value - Enum.UserInputType.MouseButton1.Value + 1)
+										end
+										if keyName then
+											listening = false
+											KeyLabel.Text = keyName
+											if keyName ~= currentKey then
+												currentKey = keyName
+												config.KeyCallback("Changed", { Key = keyName, Mode = config.Mode })
+											end
+											conn:Disconnect()
+										end
+									end)
+								end)
+							end
+
+							local function keyMatches()
+								if currentKey == "None" or currentKey == "" then return false end
+								if input.UserInputType == Enum.UserInputType.Keyboard then
+									return input.KeyCode.Name == currentKey
+								elseif input.UserInputType.Name:match("MouseButton") and currentKey:match("MB") then
+									local idx = input.UserInputType.Value - Enum.UserInputType.MouseButton1.Value + 1
+									local mb = "MB"..tostring(idx)
+									return mb == currentKey
+								end
+								return false
+							end
+
+							if keyMatches() then
+								if config.Mode == "Toggle" then
+									if config.Sync then
+										toggled = not toggled
+										updateCheck(true)
+										keyState = toggled
+										updateKeyLabelColor(toggled)
+										config.Callback(toggled)
+										config.KeyCallback("Pressed", { Key = currentKey, Mode = config.Mode, State = toggled })
+									else
+										keyState = not keyState
+										updateKeyLabelColor(keyState)
+										config.KeyCallback("Pressed", { Key = currentKey, Mode = config.Mode, State = keyState })
+									end
+								elseif config.Mode == "Hold" then
+									updateKeyLabelColor(true)
+									config.KeyCallback("Pressed", { Key = currentKey, Mode = config.Mode, State = true })
+								end
+							end
+						end)
+
+						UserInputService.InputEnded:Connect(function(input, gp)
+							if config.Mode == "Hold" and not gp then
+								if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode.Name == currentKey then
+									updateKeyLabelColor(false)
+									config.KeyCallback("Pressed", { Key = currentKey, Mode = config.Mode, State = false })
+								elseif input.UserInputType.Name:match("MouseButton") and currentKey:match("MB") then
+									local idx = input.UserInputType.Value - Enum.UserInputType.MouseButton1.Value + 1
+									local mb = "MB"..tostring(idx)
+									if mb == currentKey then
+										updateKeyLabelColor(false)
+										config.KeyCallback("Pressed", { Key = currentKey, Mode = config.Mode, State = false })
+									end
+								end
+							end
+						end)
+					end
 
 					return {
 						Frame = ToggleFrame,
 						Check = ToggleCheck,
-						GetState = function() return toggled end
+						GetState = function() return toggled end,
+						KeyLabel = KeyLabel,
+						GetKey = function() return currentKey end,
+						SetKey = function(v)
+							if v ~= currentKey then
+								currentKey = v
+								if KeyLabel then KeyLabel.Text = v end
+								config.KeyCallback("Changed", { Key = v, Mode = config.Mode })
+							end
+						end
 					}
 				end
+
 
 				function Section:AddSlider(config)
 					config = config or {}
@@ -1196,21 +1338,28 @@ local function InitJWareUI()
 						if keyMatches() then
 							if config.Mode == "Toggle" then
 								toggleState = not toggleState
+								TweenService:Create(KeyLabel, DefaultTweenInfo, {
+									TextColor3 = toggleState and Theme.MainColor or Color3.fromRGB(150,150,150)
+								}):Play()
 								config.Callback("Pressed", { Key = currentKey, Mode = config.Mode, State = toggleState })
 							elseif config.Mode == "Hold" then
+								TweenService:Create(KeyLabel, DefaultTweenInfo, { TextColor3 = Theme.MainColor }):Play()
 								config.Callback("Pressed", { Key = currentKey, Mode = config.Mode, State = true })
 							end
 						end
+
 					end)
 
 					UIS.InputEnded:Connect(function(input, gameProcessed)
 						if config.Mode == "Hold" and not gameProcessed then
 							if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode.Name == currentKey then
+								TweenService:Create(KeyLabel, DefaultTweenInfo, { TextColor3 = Color3.fromRGB(150,150,150) }):Play()
 								config.Callback("Pressed", { Key = currentKey, Mode = config.Mode, State = false })
 							elseif input.UserInputType.Name:match("MouseButton") and currentKey:match("MB") then
 								local idx = input.UserInputType.Value - Enum.UserInputType.MouseButton1.Value + 1
 								local mb = "MB" .. tostring(idx)
 								if mb == currentKey then
+									TweenService:Create(KeyLabel, DefaultTweenInfo, { TextColor3 = Color3.fromRGB(150,150,150) }):Play()
 									config.Callback("Pressed", { Key = currentKey, Mode = config.Mode, State = false })
 								end
 							end
@@ -1244,6 +1393,7 @@ local function InitJWareUI()
 	return CreateWindow
 end
 
+
 -- Single-instance pattern for loadstring users:
 if getgenv then
 	getgenv().JWareUI = getgenv().JWareUI or InitJWareUI()
@@ -1253,45 +1403,3 @@ else
 	_G.JWareUI = _G.JWareUI or InitJWareUI()
 	return _G.JWareUI
 end
-
---[[ Example usage (commented; keep in your script, not in the library)
-local JWareUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/YourUser/YourRepo/main/UI.lua"))()
-local CreateWindow = JWareUI
-
-local Window = CreateWindow{ Title = "UI Test", TextAlignment = "Center" }
-
-local Tabs = {
-	Tab1 = Window:AddTab{ Title = "Combat", Icon = "rbxassetid://70562308088944"},
-	Tab2 = Window:AddTab{ Title = " Visuals", Icon = "rbxassetid://106047967076597"},
-	Tab3 = Window:AddTab{ Title = " Misc", Icon = "rbxassetid://132116617708831"},
-	Tab4 = Window:AddTab{ Title = " Settings", Icon = "rbxassetid://75780782723103"},
-}
-
-local LeftSection = Tabs.Tab1:AddSection{ Title = "Aimbot", Type = "Left" }
-LeftSection:AddButton{ Title = "Click", Callback = function() print("Clicked") end }
-
-local CenterSection = Tabs.Tab1:AddSection{ Title = "Weapons", Type = "Center" }
-CenterSection:AddLabel{ Title = "Created by: JWare", TextAlignment = "Center" }
-CenterSection:AddButton{ Title = "Click2", Callback = function() print("Clicked") end }
-CenterSection:AddToggle{ Title = "Silent", Default = false, Callback = function(v) print(v) end }
-CenterSection:AddSlider{ Title = "Percent", Default = 50, Min = 0, Max = 100, Rounding = 1, Suffix = "%", Callback = function(v) print(v) end }
-CenterSection:AddColorPicker{ Title = "Color", Default = Color3.fromRGB(70, 7, 100), Callback = function(v) print(v) end }
-CenterSection:AddKeyPicker{
-	Title = "Jump Key",
-	Default = "None",
-	Mode = "Toggle",
-	Callback = function(eventType, data)
-		if eventType == "Changed" then
-			print("Keybind changed to:", data.Key)
-		elseif eventType == "Pressed" then
-			if data.State then
-				print("Action START")
-			else
-				print("Action END")
-			end
-		end
-	end
-}
-
-local RightSection = Tabs.Tab1:AddSection{ Title = "Guns", Type = "Right" }
-]]
