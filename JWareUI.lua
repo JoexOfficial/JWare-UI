@@ -192,7 +192,7 @@ local function InitJWareUI()
 			Window["4f"].BorderSizePixel = 0
 			Window["4f"].BackgroundColor3 = Theme.BackgroundColor
 			Window["4f"].Size = UDim2.new(0, 150, 0, 100)
-			Window["4f"].Position = UDim2.new(0, 5, 0, 500)
+			Window["4f"].Position = UDim2.new(0, 5, 0, 600)
 			Window["4f"].BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Window["4f"].Name = "KeybindFrame"
 			Window["4f"].Visible = false
@@ -342,7 +342,7 @@ local function InitJWareUI()
 			Window["5a"].BorderSizePixel = 0;
 			Window["5a"].BackgroundColor3 = Theme.BackgroundColor
 			Window["5a"].Size = UDim2.new(0, 400, 0, 30);
-			Window["5a"].Position = UDim2.new(0, 5, 0, 50);
+			Window["5a"].Position = UDim2.new(0, 5, 0, 60);
 			Window["5a"].BorderColor3 = Color3.fromRGB(0, 0, 0);
 			Window["5a"].Name = "WatermarkFrame";
 			Window["5a"].Visible = false
