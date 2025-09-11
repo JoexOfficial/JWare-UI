@@ -979,6 +979,193 @@ local function InitJWareUI()
 						end
 					}
 				end
+				
+				
+				function Section:AddDropdown(config)
+					config = config or {}
+					config.Title = config.Title or "Dropdown"
+					config.Options = config.Options or {}
+					config.Default = config.Default or config.Options[1] or ""
+					config.Callback = config.Callback or function(value) end
+
+					local DropdownFrame = Instance.new("Frame")
+					DropdownFrame.Name = config.Title
+					DropdownFrame.Parent = self.ElementsHolder
+					DropdownFrame.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+					DropdownFrame.Size = UDim2.new(0, 208, 0, 20)
+					DropdownFrame.ZIndex = 3
+					DropdownFrame.BorderSizePixel = 0
+
+					-- UIStroke for dropdown
+					local DropdownStroke = Instance.new("UIStroke")
+					DropdownStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					DropdownStroke.Color = Theme.OutlineColor
+					DropdownStroke.Thickness = 1
+					DropdownStroke.Parent = DropdownFrame
+
+					local TitleLabel = Instance.new("TextLabel")
+					TitleLabel.Name = "Title"
+					TitleLabel.Parent = DropdownFrame
+					TitleLabel.Text = config.Default
+					TitleLabel.TextSize = 14
+					TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+					TitleLabel.BackgroundTransparency = 1
+					TitleLabel.Size = UDim2.new(0, 150, 1, 0)
+					TitleLabel.Position = UDim2.new(0, 5, 0, 0)
+					TitleLabel.Font = Enum.Font.Gotham
+					TitleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+
+					local Indicator = Instance.new("TextLabel")
+					Indicator.Name = "Indicator"
+					Indicator.Parent = DropdownFrame
+					Indicator.Text = "▼"
+					Indicator.TextSize = 14
+					Indicator.TextXAlignment = Enum.TextXAlignment.Right
+					Indicator.BackgroundTransparency = 1
+					Indicator.Size = UDim2.new(0, 15, 1, 0)
+					Indicator.Position = UDim2.new(1, -20, 0, -2)
+					Indicator.Font = Enum.Font.Gotham
+					Indicator.TextColor3 = Color3.fromRGB(200, 200, 200)
+
+					local ElementsHolder = Instance.new("Frame")
+					ElementsHolder.Name = "ElementsHolder"
+					ElementsHolder.Parent = DropdownFrame
+					ElementsHolder.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+					ElementsHolder.Size = UDim2.new(0, 208, 0, #config.Options * 20)
+					ElementsHolder.Position = UDim2.new(0, 0, 0, 20)
+					ElementsHolder.Visible = false
+					ElementsHolder.BorderSizePixel = 0
+					ElementsHolder.ClipsDescendants = true
+
+					-- UIStroke for elements holder
+					local HolderStroke = Instance.new("UIStroke")
+					HolderStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					HolderStroke.Color = Theme.OutlineColor
+					HolderStroke.Thickness = 1
+					HolderStroke.Parent = ElementsHolder
+
+					local ListLayout = Instance.new("UIListLayout")
+					ListLayout.Padding = UDim.new(0, 0)
+					ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+					ListLayout.Parent = ElementsHolder
+
+					local hoverBG = Theme.MainColor
+					local normalBG = Color3.fromRGB(26, 26, 26)
+					local normalText = Color3.fromRGB(200, 200, 200)
+					local hoverText = Color3.fromRGB(255, 255, 255)
+
+					local expanded = false
+
+					local function toggleDropdown()
+						expanded = not expanded
+						ElementsHolder.Visible = expanded
+
+						if expanded then
+							Indicator.Text = "▲"
+							TweenService:Create(DropdownFrame, DefaultTweenInfo, {BackgroundColor3 = hoverBG}):Play()
+						else
+							Indicator.Text = "▼"
+							TweenService:Create(DropdownFrame, DefaultTweenInfo, {BackgroundColor3 = normalBG}):Play()
+						end
+					end
+
+					local selectedValue = config.Default
+					local optionButtons = {}
+
+					-- Main button hover
+					local function onHover()
+						TweenService:Create(TitleLabel, DefaultTweenInfo, {TextColor3 = hoverText}):Play()
+						TweenService:Create(Indicator, DefaultTweenInfo, {TextColor3 = hoverText}):Play()
+					end
+					local function onLeave()
+						TweenService:Create(TitleLabel, DefaultTweenInfo, {TextColor3 = normalText}):Play()
+						TweenService:Create(Indicator, DefaultTweenInfo, {TextColor3 = normalText}):Play()
+					end
+					DropdownFrame.MouseEnter:Connect(onHover)
+					DropdownFrame.MouseLeave:Connect(onLeave)
+
+					-- Main dropdown click
+					DropdownFrame.InputBegan:Connect(function(input)
+						if input.UserInputType == Enum.UserInputType.MouseButton1 then
+							toggleDropdown()
+						end
+					end)
+
+					-- Create options
+					for i, option in ipairs(config.Options) do
+						-- Wrapper Frame to block clickthrough
+						local OptionWrapper = Instance.new("TextButton")
+						OptionWrapper.Name = option
+						OptionWrapper.Parent = ElementsHolder
+						OptionWrapper.Size = UDim2.new(1, 0, 0, 20)
+						OptionWrapper.BackgroundTransparency = 1 -- keep background invisible
+						OptionWrapper.AutoButtonColor = false
+						OptionWrapper.ZIndex = 10
+						OptionWrapper.Text = "" -- empty, visuals handled by TextLabel inside
+
+						-- TextLabel inside wrapper
+						local OptionButton = Instance.new("TextLabel")
+						OptionButton.Name = "Label"
+						OptionButton.Parent = OptionWrapper
+						OptionButton.Size = UDim2.new(1, 0, 1, 0)
+						OptionButton.BackgroundColor3 = normalBG
+						OptionButton.Text = option
+						OptionButton.TextSize = 14
+						OptionButton.TextColor3 = normalText
+						OptionButton.Font = Enum.Font.Gotham
+						OptionButton.TextXAlignment = Enum.TextXAlignment.Left
+						OptionButton.BackgroundTransparency = 0
+
+						local padding = Instance.new("UIPadding")
+						padding.PaddingLeft = UDim.new(0, 5)
+						padding.Parent = OptionButton
+
+						local OptionStroke = Instance.new("UIStroke")
+						OptionStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+						OptionStroke.Color = Theme.OutlineColor
+						OptionStroke.Thickness = 1
+						OptionStroke.Parent = OptionButton
+
+						-- Hover
+						OptionWrapper.MouseEnter:Connect(function()
+							TweenService:Create(OptionButton, DefaultTweenInfo, {TextColor3 = hoverText}):Play()
+						end)
+						OptionWrapper.MouseLeave:Connect(function()
+							TweenService:Create(OptionButton, DefaultTweenInfo, {TextColor3 = normalText}):Play()
+						end)
+
+						-- Click
+						OptionWrapper.MouseButton1Click:Connect(function()
+							TweenService:Create(OptionButton, DefaultTweenInfo, {BackgroundColor3 = hoverBG}):Play()
+							task.delay(DefaultTweenInfo.Time / 2, function()
+								TweenService:Create(OptionButton, DefaultTweenInfo, {BackgroundColor3 = normalBG}):Play()
+							end)
+
+							selectedValue = option
+							TitleLabel.Text = option
+							config.Callback(option)
+							toggleDropdown()
+						end)
+
+						table.insert(optionButtons, OptionWrapper)
+					end
+
+
+					return {
+						Frame = DropdownFrame,
+						GetValue = function() return selectedValue end,
+						SetValue = function(val)
+							for _, opt in ipairs(optionButtons) do
+								if opt.Name == val then
+									selectedValue = val
+									TitleLabel.Text = val
+									config.Callback(val)
+									break
+								end
+							end
+						end
+					}
+				end
 
 
 				function Section:AddSlider(config)
