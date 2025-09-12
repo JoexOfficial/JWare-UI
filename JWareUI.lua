@@ -993,7 +993,7 @@ local function InitJWareUI()
 					DropdownFrame.Parent = self.ElementsHolder
 					DropdownFrame.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
 					DropdownFrame.Size = UDim2.new(0, 208, 0, 20)
-					DropdownFrame.ZIndex = 3
+					DropdownFrame.ZIndex = 10
 					DropdownFrame.BorderSizePixel = 0
 
 					-- UIStroke for dropdown
@@ -1035,6 +1035,7 @@ local function InitJWareUI()
 					ElementsHolder.Position = UDim2.new(0, 0, 0, 20)
 					ElementsHolder.Visible = false
 					ElementsHolder.BorderSizePixel = 0
+					ElementsHolder.ZIndex = 11
 					ElementsHolder.ClipsDescendants = true
 
 					-- UIStroke for elements holder
@@ -1061,9 +1062,11 @@ local function InitJWareUI()
 						ElementsHolder.Visible = expanded
 
 						if expanded then
+							DropdownFrame.ZIndex = 11
 							Indicator.Text = "▲"
 							TweenService:Create(DropdownFrame, DefaultTweenInfo, {BackgroundColor3 = hoverBG}):Play()
 						else
+							DropdownFrame.ZIndex = 10
 							Indicator.Text = "▼"
 							TweenService:Create(DropdownFrame, DefaultTweenInfo, {BackgroundColor3 = normalBG}):Play()
 						end
@@ -1114,6 +1117,7 @@ local function InitJWareUI()
 						OptionButton.TextColor3 = normalText
 						OptionButton.Font = Enum.Font.Gotham
 						OptionButton.TextXAlignment = Enum.TextXAlignment.Left
+						OptionWrapper.ZIndex = 10
 						OptionButton.BackgroundTransparency = 0
 
 						local padding = Instance.new("UIPadding")
@@ -1820,7 +1824,6 @@ local function InitJWareUI()
 	
 	return CreateWindow
 end
-
 
 --return InitJWareUI() --remove if using executors
 
