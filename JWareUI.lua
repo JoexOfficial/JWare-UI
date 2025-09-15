@@ -17,7 +17,7 @@ local function InitJWareUI()
 	local DefaultTweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
 
 	--Theme
-	local Theme = Themes.JWare2
+	local Theme = Themes.JWare
 	
 	
 
@@ -985,7 +985,13 @@ local function InitJWareUI()
 					config = config or {}
 					config.Title = config.Title or "Dropdown"
 					config.Options = config.Options or {}
-					config.Default = config.Default or config.Options[1] or ""
+					config.Multi = config.Multi or false
+					config.Placeholder = config.Placeholder or config.Title -- NEW: placeholder/title text
+					if config.Multi then
+						config.Default = type(config.Default) == "table" and config.Default or {}
+					else
+						config.Default = config.Default or {}
+					end
 					config.Callback = config.Callback or function(value) end
 
 					local DropdownFrame = Instance.new("Frame")
@@ -996,7 +1002,6 @@ local function InitJWareUI()
 					DropdownFrame.ZIndex = 10
 					DropdownFrame.BorderSizePixel = 0
 
-					-- UIStroke for dropdown
 					local DropdownStroke = Instance.new("UIStroke")
 					DropdownStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					DropdownStroke.Color = Theme.OutlineColor
@@ -1006,7 +1011,6 @@ local function InitJWareUI()
 					local TitleLabel = Instance.new("TextLabel")
 					TitleLabel.Name = "Title"
 					TitleLabel.Parent = DropdownFrame
-					TitleLabel.Text = config.Default
 					TitleLabel.TextSize = 14
 					TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 					TitleLabel.BackgroundTransparency = 1
@@ -1014,6 +1018,13 @@ local function InitJWareUI()
 					TitleLabel.Position = UDim2.new(0, 5, 0, 0)
 					TitleLabel.Font = Enum.Font.Gotham
 					TitleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+
+					-- initial label text
+					if config.Multi then
+						TitleLabel.Text = (#config.Default > 0) and table.concat(config.Default, ", ") or config.Placeholder
+					else
+						TitleLabel.Text = (#config.Default > 0) and config.Default[1] or config.Placeholder
+					end
 
 					local Indicator = Instance.new("TextLabel")
 					Indicator.Name = "Indicator"
@@ -1038,7 +1049,6 @@ local function InitJWareUI()
 					ElementsHolder.ZIndex = 11
 					ElementsHolder.ClipsDescendants = true
 
-					-- UIStroke for elements holder
 					local HolderStroke = Instance.new("UIStroke")
 					HolderStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 					HolderStroke.Color = Theme.OutlineColor
@@ -1056,11 +1066,12 @@ local function InitJWareUI()
 					local hoverText = Color3.fromRGB(255, 255, 255)
 
 					local expanded = false
+					local selectedValue = config.Multi and config.Default or config.Default
+					local optionButtons = {}
 
 					local function toggleDropdown()
 						expanded = not expanded
 						ElementsHolder.Visible = expanded
-
 						if expanded then
 							DropdownFrame.ZIndex = 11
 							Indicator.Text = "▲"
@@ -1072,10 +1083,6 @@ local function InitJWareUI()
 						end
 					end
 
-					local selectedValue = config.Default
-					local optionButtons = {}
-
-					-- Main button hover
 					local function onHover()
 						TweenService:Create(TitleLabel, DefaultTweenInfo, {TextColor3 = hoverText}):Play()
 						TweenService:Create(Indicator, DefaultTweenInfo, {TextColor3 = hoverText}):Play()
@@ -1087,26 +1094,22 @@ local function InitJWareUI()
 					DropdownFrame.MouseEnter:Connect(onHover)
 					DropdownFrame.MouseLeave:Connect(onLeave)
 
-					-- Main dropdown click
 					DropdownFrame.InputBegan:Connect(function(input)
 						if input.UserInputType == Enum.UserInputType.MouseButton1 then
 							toggleDropdown()
 						end
 					end)
 
-					-- Create options
 					for i, option in ipairs(config.Options) do
-						-- Wrapper Frame to block clickthrough
 						local OptionWrapper = Instance.new("TextButton")
 						OptionWrapper.Name = option
 						OptionWrapper.Parent = ElementsHolder
 						OptionWrapper.Size = UDim2.new(1, 0, 0, 20)
-						OptionWrapper.BackgroundTransparency = 1 -- keep background invisible
+						OptionWrapper.BackgroundTransparency = 1
 						OptionWrapper.AutoButtonColor = false
 						OptionWrapper.ZIndex = 10
-						OptionWrapper.Text = "" -- empty, visuals handled by TextLabel inside
+						OptionWrapper.Text = ""
 
-						-- TextLabel inside wrapper
 						local OptionButton = Instance.new("TextLabel")
 						OptionButton.Name = "Label"
 						OptionButton.Parent = OptionWrapper
@@ -1117,7 +1120,6 @@ local function InitJWareUI()
 						OptionButton.TextColor3 = normalText
 						OptionButton.Font = Enum.Font.Gotham
 						OptionButton.TextXAlignment = Enum.TextXAlignment.Left
-						OptionWrapper.ZIndex = 10
 						OptionButton.BackgroundTransparency = 0
 
 						local padding = Instance.new("UIPadding")
@@ -1130,7 +1132,6 @@ local function InitJWareUI()
 						OptionStroke.Thickness = 1
 						OptionStroke.Parent = OptionButton
 
-						-- Hover
 						OptionWrapper.MouseEnter:Connect(function()
 							TweenService:Create(OptionButton, DefaultTweenInfo, {TextColor3 = hoverText}):Play()
 						end)
@@ -1138,33 +1139,59 @@ local function InitJWareUI()
 							TweenService:Create(OptionButton, DefaultTweenInfo, {TextColor3 = normalText}):Play()
 						end)
 
-						-- Click
 						OptionWrapper.MouseButton1Click:Connect(function()
-							TweenService:Create(OptionButton, DefaultTweenInfo, {BackgroundColor3 = hoverBG}):Play()
-							task.delay(DefaultTweenInfo.Time / 2, function()
-								TweenService:Create(OptionButton, DefaultTweenInfo, {BackgroundColor3 = normalBG}):Play()
-							end)
-
-							selectedValue = option
-							TitleLabel.Text = option
-							config.Callback(option)
-							toggleDropdown()
+							if config.Multi then
+								local exists = table.find(selectedValue, option)
+								if exists then
+									table.remove(selectedValue, exists)
+									TweenService:Create(OptionButton, DefaultTweenInfo, {BackgroundColor3 = normalBG}):Play()
+								else
+									table.insert(selectedValue, option)
+									TweenService:Create(OptionButton, DefaultTweenInfo, {BackgroundColor3 = hoverBG}):Play()
+								end
+								-- show placeholder if nothing selected
+								TitleLabel.Text = (#selectedValue > 0) and table.concat(selectedValue, ", ") or config.Placeholder
+								config.Callback(selectedValue)
+							else
+								TweenService:Create(OptionButton, DefaultTweenInfo, {BackgroundColor3 = hoverBG}):Play()
+								task.delay(DefaultTweenInfo.Time / 2, function()
+									TweenService:Create(OptionButton, DefaultTweenInfo, {BackgroundColor3 = normalBG}):Play()
+								end)
+								selectedValue = option
+								TitleLabel.Text = option
+								config.Callback(option)
+								toggleDropdown()
+							end
 						end)
 
 						table.insert(optionButtons, OptionWrapper)
 					end
 
-
 					return {
 						Frame = DropdownFrame,
 						GetValue = function() return selectedValue end,
 						SetValue = function(val)
-							for _, opt in ipairs(optionButtons) do
-								if opt.Name == val then
-									selectedValue = val
-									TitleLabel.Text = val
-									config.Callback(val)
-									break
+							if config.Multi then
+								selectedValue = {}
+								for _, v in ipairs(val) do
+									for _, opt in ipairs(optionButtons) do
+										if opt.Name == v then
+											table.insert(selectedValue, v)
+											opt.Label.BackgroundColor3 = hoverBG
+											break
+										end
+									end
+								end
+								TitleLabel.Text = (#selectedValue > 0) and table.concat(selectedValue, ", ") or config.Placeholder
+								config.Callback(selectedValue)
+							else
+								for _, opt in ipairs(optionButtons) do
+									if opt.Name == val then
+										selectedValue = val
+										TitleLabel.Text = val
+										config.Callback(val)
+										break
+									end
 								end
 							end
 						end
@@ -1346,6 +1373,7 @@ local function InitJWareUI()
 					ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
 					ColorPickerFrame.BackgroundTransparency = 1
 					ColorPickerFrame.BorderSizePixel = 0
+					ColorPickerFrame.ZIndex = 10
 					ColorPickerFrame.Size = UDim2.new(0, 208, 0, 15)
 
 					local TitleLabel = Instance.new("TextLabel")
@@ -1365,6 +1393,7 @@ local function InitJWareUI()
 					ColorFrame.BackgroundColor3 = config.Default
 					ColorFrame.BorderSizePixel = 0
 					ColorFrame.Size = UDim2.new(0, 30, 0, 15)
+					ColorFrame.ZIndex = 10
 					ColorFrame.Position = UDim2.new(0, 177, 0, 0)
 
 					local Stroke = Instance.new("UIStroke", ColorFrame)
