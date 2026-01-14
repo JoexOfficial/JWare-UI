@@ -17,7 +17,7 @@ local function InitJWareUI()
 	local DefaultTweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
 
 	--Theme
-	local Theme = Themes.JWare
+	local Theme = Themes.JWare2
 	
 	
 
@@ -1403,7 +1403,13 @@ local function InitJWareUI()
 
 					local UIFrame = Instance.new("Frame")
 					UIFrame.Name = "UI"
-					UIFrame.Parent = ColorFrame
+					UIFrame.Parent = Window["1"]  -- top-level GUI so it renders above everything
+					UIFrame.ZIndex = 100
+					for _, child in ipairs(UIFrame:GetDescendants()) do
+						if child:IsA("GuiObject") then
+							child.ZIndex = 101
+						end
+					end
 					UIFrame.Visible = false
 					UIFrame.BackgroundColor3 = Color3.fromRGB(16,16,16)
 					UIFrame.BorderSizePixel = 0
