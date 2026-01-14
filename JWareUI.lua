@@ -17,7 +17,7 @@ local function InitJWareUI()
 	local DefaultTweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
 
 	--Theme
-	local Theme = Themes.JWare2
+	local Theme = Themes.JWare
 	
 	
 
@@ -1402,24 +1402,13 @@ local function InitJWareUI()
 					Stroke.Thickness = 1
 
 					local UIFrame = Instance.new("Frame")
-					local absPos = ColorFrame.AbsolutePosition
-
-					-- move UIFrame to top-level GUI
-					UIFrame.Parent = Window["1"]
-					UIFrame.Position = UDim2.fromOffset(absPos.X, absPos.Y)
-					
-					-- set high ZIndex so it's above everything
-					UIFrame.ZIndex = 100
-					for _, child in ipairs(UIFrame:GetDescendants()) do
-					    if child:IsA("GuiObject") then
-					        child.ZIndex = 101
-					    end
-					end
+					UIFrame.Name = "UI"
+					UIFrame.Parent = ColorFrame
 					UIFrame.Visible = false
 					UIFrame.BackgroundColor3 = Color3.fromRGB(16,16,16)
 					UIFrame.BorderSizePixel = 0
 					UIFrame.Size = UDim2.new(0, 150, 0, 150)
-					UIFrame.Position = UDim2.new(0, 35, 0, 0)
+					UIFrame.Position = UDim2.new(0, 60, 0, 0)
 					UIFrame.ZIndex = 50
 
 					local UIStroke = Instance.new("UIStroke", UIFrame)
