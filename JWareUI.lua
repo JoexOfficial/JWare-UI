@@ -1402,13 +1402,18 @@ local function InitJWareUI()
 					Stroke.Thickness = 1
 
 					local UIFrame = Instance.new("Frame")
-					UIFrame.Name = "UI"
-					UIFrame.Parent = Window["1"]  -- top-level GUI so it renders above everything
+					local absPos = ColorFrame.AbsolutePosition
+
+					-- move UIFrame to top-level GUI
+					UIFrame.Parent = Window["1"]
+					UIFrame.Position = UDim2.fromOffset(absPos.X, absPos.Y)
+					
+					-- set high ZIndex so it's above everything
 					UIFrame.ZIndex = 100
 					for _, child in ipairs(UIFrame:GetDescendants()) do
-						if child:IsA("GuiObject") then
-							child.ZIndex = 101
-						end
+					    if child:IsA("GuiObject") then
+					        child.ZIndex = 101
+					    end
 					end
 					UIFrame.Visible = false
 					UIFrame.BackgroundColor3 = Color3.fromRGB(16,16,16)
