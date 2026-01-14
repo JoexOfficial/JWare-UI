@@ -1394,7 +1394,7 @@ local function InitJWareUI()
 					ColorFrame.BorderSizePixel = 0
 					ColorFrame.Size = UDim2.new(0, 30, 0, 15)
 					ColorFrame.ZIndex = 10
-					ColorFrame.Position = UDim2.new(0, 300, 0, 0)
+					ColorFrame.Position = UDim2.new(0, 177, 0, 0)
 
 					local Stroke = Instance.new("UIStroke", ColorFrame)
 					Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -1408,7 +1408,7 @@ local function InitJWareUI()
 					UIFrame.BackgroundColor3 = Color3.fromRGB(16,16,16)
 					UIFrame.BorderSizePixel = 0
 					UIFrame.Size = UDim2.new(0, 150, 0, 150)
-					UIFrame.Position = UDim2.new(0, 35, 0, 0)
+					UIFrame.Position = UDim2.new(0, 200, 0, 0)
 					UIFrame.ZIndex = 50
 
 					local UIStroke = Instance.new("UIStroke", UIFrame)
